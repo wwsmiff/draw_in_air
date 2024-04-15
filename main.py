@@ -77,7 +77,7 @@ def handle_gestures(landmarks):
 
 with mp_hands.Hands(
     min_detection_confidence=0.80,
-    min_tracking_confidence=0.80) as hands:
+    min_tracking_confidence=0.75) as hands:
     while cap.isOpened():
         _, img = cap.read()
         image = img.copy()
