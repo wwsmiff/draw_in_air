@@ -6,9 +6,9 @@ This project enables you to draw in air and use your screen as a canvas using yo
 - Numpy
 - MediaPipe
 
-# Install
+# Run
 ```
-git clone ~/https://github.com/wwsmiff/draw_in_air/
+git clone ~/https://github.com/wwsmiff/draw_in_air.git
 cd ~/draw_in_air
 pip install -r requirements.txt
 python3 main.py
