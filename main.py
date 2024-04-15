@@ -45,7 +45,7 @@ def handle_gestures(landmarks):
     zero = extract_coordinates(landmarks, 0)
 
     if zero[1] - index[1] < CLOSE_THRESHOLD and \
-       zero[1] - thumb[1] < CLOSE_THRESHOLD and \
+       zero[1] - thumb[1] < CLOSE_THRESHOLD + 20 and \
        zero[1] - middle[1] < CLOSE_THRESHOLD and \
        zero[1] - ring[1] < CLOSE_THRESHOLD and \
        zero[1] - pinky[1] < CLOSE_THRESHOLD:
@@ -68,8 +68,8 @@ def handle_gestures(landmarks):
 
 
 with mp_hands.Hands(
-    min_detection_confidence=0.9,
-    min_tracking_confidence=0.9) as hands:
+    min_detection_confidence=0.85,
+    min_tracking_confidence=0.85) as hands:
     while cap.isOpened():
         _, img = cap.read()
         image = img.copy()
@@ -85,20 +85,7 @@ with mp_hands.Hands(
         for i in range(start, len(primary_coords) - 1):
             cv2.line(image, (primary_coords[i][1][0], primary_coords[i][1][1]), (primary_coords[i+1][1][0], primary_coords[i+1][1][1]), color = primary_coords[i][0], thickness = 5)
 
-        if len(secondary_coords) > 0:
-            cropped = original_image[max(secondary_coords[-1][1][1] - 15, 15) : secondary_coords[-1][1][1], max(secondary_coords[-1][1][0] - 5, 1) : secondary_coords[-1][1][0] + 5]
-            if(len(cropped) > 0):
-                current_color = (int(cropped[0][0][0]), int(cropped[0][0][1]), int(cropped[0][0][2]))
-            image = cv2.rectangle(image, (max(secondary_coords[-1][1][0] - 10, 1), max(secondary_coords[-1][1][1] - 10, 10)), (secondary_coords[-1][1][0] + 5, secondary_coords[-1][1][1]), color=(0, 0, 255), thickness=2)
-
-        image = cv2.circle(image, (int(CAPTURE_WIDTH - 50), int(CAPTURE_HEIGHT - 50)), 20, current_color, -1)
-        image = cv2.circle(image, (int(CAPTURE_WIDTH - 50), int(CAPTURE_HEIGHT - 50)), 20, (0, 0, 0), 5)
-
         if results.multi_hand_landmarks:
-            for hand_landmarks in results.multi_hand_landmarks:
-                mp_drawing.draw_landmarks(
-                    image, hand_landmarks, mp_hands.HAND_CONNECTIONS)
-
             if len(results.multi_hand_landmarks) == 1:
                 primary_index = extract_coordinates(results.multi_hand_landmarks[0], 8)
                 if handle_gestures(results.multi_hand_landmarks[0]) == "gesture_one":
@@ -124,6 +111,19 @@ with mp_hands.Hands(
 
                 if handle_gestures(results.multi_hand_landmarks[1]) == "gesture_close":
                     primary_coords.clear()
+
+            for hand_landmarks in results.multi_hand_landmarks:
+                mp_drawing.draw_landmarks(
+                    image, hand_landmarks, mp_hands.HAND_CONNECTIONS)
+
+        image = cv2.circle(image, (int(CAPTURE_WIDTH - 50), int(CAPTURE_HEIGHT - 50)), 20, current_color, -1)
+        image = cv2.circle(image, (int(CAPTURE_WIDTH - 50), int(CAPTURE_HEIGHT - 50)), 20, (0, 0, 0), 5)
+
+        if len(secondary_coords) > 0:
+            cropped = original_image[max(secondary_coords[-1][1][1] - 15, 15) : secondary_coords[-1][1][1], max(secondary_coords[-1][1][0] - 5, 1) : secondary_coords[-1][1][0] + 5]
+            if(len(cropped) > 0):
+                current_color = (int(cropped[0][0][0]), int(cropped[0][0][1]), int(cropped[0][0][2]))
+            image = cv2.rectangle(image, (max(secondary_coords[-1][1][0] - 10, 1), max(secondary_coords[-1][1][1] - 10, 10)), (secondary_coords[-1][1][0] + 5, secondary_coords[-1][1][1]), color=(0, 0, 255), thickness=2)
 
 
 
